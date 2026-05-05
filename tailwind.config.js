@@ -4,8 +4,28 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Hind Siliguri"', 'Inter', 'system-ui', 'sans-serif'],
-        display: ['"Baloo Da 2"', '"Hind Siliguri"', 'Inter', 'sans-serif'],
+        /* Latin chars come from Inter; Bangla chars fall through to system
+           fonts (Nirmala UI on Windows, Bangla Sangam MN on macOS, etc.)
+           which the user prefers — no Google Bangla webfont swap. */
+        sans: [
+          'Inter',
+          'system-ui',
+          '-apple-system',
+          '"Segoe UI"',
+          '"Nirmala UI"',
+          '"Bangla Sangam MN"',
+          'SolaimanLipi',
+          'Kalpurush',
+          'sans-serif',
+        ],
+        display: [
+          '"Baloo Da 2"',
+          'Inter',
+          'system-ui',
+          '"Segoe UI"',
+          '"Nirmala UI"',
+          'sans-serif',
+        ],
       },
       keyframes: {
         sectionIn: {
