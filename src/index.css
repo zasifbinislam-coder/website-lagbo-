@@ -1,0 +1,398 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  html,
+  body,
+  #root {
+    height: 100%;
+  }
+
+  body {
+    font-family: 'Hind Siliguri', 'Inter', system-ui, sans-serif;
+    font-size: 15px;
+    font-weight: 500;
+    line-height: 1.55;
+    letter-spacing: 0;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    background-color: #07091a;
+    color: #e6e8ef;
+    overflow: hidden;
+    position: relative;
+  }
+
+  /* Light theme — chrome-only override (body bg + dimmed aurora). Most
+     in-page components keep their dark styling; full light-mode pass would
+     require auditing every component. */
+  html[data-theme='light'] body {
+    background-color: #f3f4f9;
+  }
+  html[data-theme='light'] body::before {
+    opacity: 0.45;
+    filter: blur(12px);
+  }
+  html[data-theme='light'] body::after {
+    background: radial-gradient(
+      560px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(99, 102, 241, 0.10),
+      rgba(236, 72, 153, 0.05) 30%,
+      transparent 60%
+    );
+  }
+
+  /* Animated aurora layer 1 — slow drift, vivid */
+  body::before {
+    content: '';
+    position: fixed;
+    inset: -10%;
+    z-index: -2;
+    background:
+      radial-gradient(40% 50% at 18% 22%, rgba(139, 92, 246, 0.55), transparent 70%),
+      radial-gradient(35% 50% at 82% 18%, rgba(236, 72, 153, 0.45), transparent 70%),
+      radial-gradient(45% 55% at 60% 82%, rgba(56, 189, 248, 0.35), transparent 70%),
+      radial-gradient(35% 45% at 22% 88%, rgba(16, 185, 129, 0.28), transparent 70%);
+    animation: auroraDrift 28s ease-in-out infinite alternate;
+    filter: blur(8px);
+    pointer-events: none;
+  }
+
+  /* Cursor spotlight — driven by --mx / --my CSS variables (set in JS) */
+  body::after {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    background: radial-gradient(
+      560px circle at var(--mx, 50%) var(--my, 50%),
+      rgba(99, 102, 241, 0.18),
+      rgba(236, 72, 153, 0.08) 30%,
+      transparent 60%
+    );
+    pointer-events: none;
+    transition: background-position 0.1s ease-out;
+  }
+
+  /* Bangla-friendly readability — bump tiny sizes to be legible */
+  .text-\[10px\], .text-\[10\.5px\] { font-size: 11.5px !important; }
+  .text-\[11px\] { font-size: 12px !important; }
+  .text-\[11\.5px\] { font-size: 12.5px !important; }
+  .text-\[12px\] { font-size: 13px !important; }
+  .text-\[12\.5px\] { font-size: 13.5px !important; }
+  .text-\[13px\] { font-size: 14px !important; }
+  .text-\[13\.5px\] { font-size: 14.5px !important; }
+
+  h1, h2, h3, h4, .font-display {
+    letter-spacing: -0.01em;
+  }
+}
+
+@layer components {
+  .glass {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02));
+    backdrop-filter: blur(18px) saturate(140%);
+    -webkit-backdrop-filter: blur(18px) saturate(140%);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+  }
+
+  .glass-strong {
+    background: linear-gradient(180deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.04));
+    backdrop-filter: blur(22px) saturate(160%);
+    -webkit-backdrop-filter: blur(22px) saturate(160%);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+  }
+
+  .nice-scroll::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+  }
+  .nice-scroll::-webkit-scrollbar-track {
+    background: transparent;
+  }
+  .nice-scroll::-webkit-scrollbar-thumb {
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 999px;
+  }
+  .nice-scroll::-webkit-scrollbar-thumb:hover {
+    background: rgba(255, 255, 255, 0.18);
+  }
+
+  .section-in {
+    animation: sectionIn 420ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .floaty {
+    animation: floaty 3.2s ease-in-out infinite;
+  }
+  .pulse-ring {
+    animation: pulseRing 1.8s ease-out infinite;
+  }
+  .slide-up {
+    animation: slideUp 320ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+  }
+  .spin {
+    animation: spin 0.9s linear infinite;
+  }
+
+  .toggle {
+    position: relative;
+    width: 44px;
+    height: 24px;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    transition: background 240ms ease, border-color 240ms ease, box-shadow 240ms ease;
+    flex-shrink: 0;
+  }
+  .toggle::after {
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    background: #fff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.35);
+    transition: transform 260ms cubic-bezier(0.2, 0.8, 0.2, 1);
+  }
+  .toggle.on {
+    background: var(--accent, #6366f1);
+    border-color: transparent;
+    box-shadow: 0 6px 18px -6px var(--accent, #6366f1);
+  }
+  .toggle.on::after {
+    transform: translateX(20px);
+  }
+
+  .feature-row {
+    transition: background 200ms ease, border-color 200ms ease, transform 200ms ease;
+  }
+  .feature-row:hover {
+    background: rgba(255, 255, 255, 0.04);
+    border-color: rgba(255, 255, 255, 0.12);
+    transform: translateY(-1px);
+  }
+
+  .device-shell {
+    transition: max-width 360ms cubic-bezier(0.2, 0.8, 0.2, 1), border-radius 360ms ease;
+  }
+
+  /* Mobile-only: when user picks the desktop device while on a phone, the
+     device shell is sized to a real desktop viewport (1200×750), then
+     rotated -90deg and scaled to fit the phone. This way the inner layout
+     actually renders as a desktop layout (responsive breakpoints at md/lg
+     fire), and the rotation lets the user view it landscape by tilting
+     or rotating their phone. */
+  @media (max-width: 767.98px) {
+    .pv-landscape-on-mobile {
+      position: fixed !important;
+      /* Center vertically inside the area below the toolbar (~80px:
+         16px main padding + ~50px toolbar + 16px gap). 40px = half of that. */
+      top: calc(50% + 40px) !important;
+      left: 50% !important;
+      width: 1200px !important;
+      height: 750px !important;
+      max-width: none !important;
+      /* Visual fills the area below the toolbar edge-to-edge. The smaller
+         dimension overflows symmetrically and is clipped by the viewport. */
+      transform: translate(-50%, -50%) rotate(-90deg) scale(var(--lscape-scale, 0.5)) !important;
+      transform-origin: center center !important;
+      z-index: 40;
+    }
+  }
+
+  /* Toolbar default styling (desktop / non-fullscreen) */
+  .preview-toolbar {
+    position: relative;
+    z-index: 60;
+    isolation: isolate;
+  }
+
+  /* On mobile, when the desktop preview is rotated and fills the full
+     screen, the toolbar is lifted to position:fixed at the top of the
+     viewport with a very high z-index so it always floats above the
+     rotated visual regardless of stacking-context quirks. */
+  @media (max-width: 767.98px) {
+    .preview-toolbar-floating {
+      position: fixed !important;
+      top: 12px !important;
+      left: 12px !important;
+      right: 12px !important;
+      z-index: 9999 !important;
+      transform: translateZ(0);
+    }
+  }
+
+  .btn-primary {
+    background: linear-gradient(
+      180deg,
+      var(--accent, #6366f1),
+      color-mix(in srgb, var(--accent, #6366f1) 80%, black)
+    );
+    color: #fff;
+    box-shadow: 0 10px 24px -10px var(--accent, #6366f1);
+    transition: transform 160ms ease, box-shadow 200ms ease, filter 200ms ease;
+  }
+  .btn-primary:hover {
+    transform: translateY(-1px);
+    filter: brightness(1.05);
+  }
+  .btn-primary:active {
+    transform: translateY(0);
+  }
+
+  .grad-text {
+    background: linear-gradient(90deg, #fff 10%, #c7d2fe 50%, #fbcfe8 90%);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  .preview-surface {
+    background: #f7f7fb;
+    color: #111827;
+  }
+
+  .swatch {
+    width: 28px;
+    height: 28px;
+    border-radius: 999px;
+    border: 2px solid rgba(255, 255, 255, 0.25);
+    transition: transform 160ms ease, border-color 200ms ease, box-shadow 200ms ease;
+    cursor: pointer;
+  }
+  .swatch:hover {
+    transform: scale(1.08);
+  }
+  .swatch.active {
+    border-color: #fff;
+    box-shadow: 0 0 0 3px rgba(255, 255, 255, 0.15), 0 8px 20px -8px rgba(0, 0, 0, 0.6);
+  }
+}
+
+@keyframes sectionIn {
+  from {
+    opacity: 0;
+    transform: translateY(14px) scale(0.985);
+    filter: blur(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+@keyframes floaty {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-6px);
+  }
+}
+@keyframes pulseRing {
+  0% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0.55);
+  }
+  80% {
+    box-shadow: 0 0 0 14px rgba(34, 197, 94, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(34, 197, 94, 0);
+  }
+}
+@keyframes slideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0.6;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes auroraDrift {
+  0% {
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
+    opacity: 0.85;
+  }
+  33% {
+    transform: translate3d(-3%, 4%, 0) scale(1.08) rotate(8deg);
+    opacity: 1;
+  }
+  66% {
+    transform: translate3d(4%, -3%, 0) scale(1.05) rotate(-6deg);
+    opacity: 0.9;
+  }
+  100% {
+    transform: translate3d(-2%, -4%, 0) scale(1.1) rotate(4deg);
+    opacity: 0.95;
+  }
+}
+
+/* HomePage immersive background animations */
+@keyframes slowZoom {
+  0%   { transform: scale(1) translate3d(0, 0, 0); }
+  100% { transform: scale(1.18) translate3d(-2%, 2%, 0); }
+}
+
+@keyframes gridDrift {
+  0%   { background-position: 0 0, 0 0; }
+  100% { background-position: 60px 60px, 60px 60px; }
+}
+
+@keyframes orbFloat1 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(60px, -40px, 0) scale(1.08); }
+  66%      { transform: translate3d(-40px, 50px, 0) scale(0.95); }
+}
+@keyframes orbFloat2 {
+  0%, 100% { transform: translate3d(0, 0, 0) scale(1); }
+  33%      { transform: translate3d(-50px, 40px, 0) scale(1.05); }
+  66%      { transform: translate3d(60px, -30px, 0) scale(1.1); }
+}
+@keyframes orbFloat3 {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes lightSweep {
+  0%   { transform: translateX(-110%) skewX(-20deg); opacity: 0; }
+  10%  { opacity: 0.55; }
+  60%  { opacity: 0.55; }
+  100% { transform: translateX(220%) skewX(-20deg); opacity: 0; }
+}
+
+@keyframes shimmerBg {
+  0%, 100% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+}
+
+/* Subtle reveal-on-scroll feel — elements with .reveal will fade up */
+.reveal {
+  animation: revealUp 700ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+@keyframes revealUp {
+  from { opacity: 0; transform: translateY(18px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* Lift-on-hover utility for cards */
+.lift-on-hover {
+  transition: transform 220ms cubic-bezier(0.2, 0.8, 0.2, 1),
+              box-shadow 220ms ease,
+              border-color 220ms ease;
+}
+.lift-on-hover:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 18px 40px -18px rgba(99, 102, 241, 0.55);
+}
