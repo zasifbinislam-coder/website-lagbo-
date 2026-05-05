@@ -1,6 +1,8 @@
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import Icon from '../components/Icon.jsx';
 import { SITE_TYPES, TESTIMONIALS, CONTACT_INFO, HOMEPAGE_COMPARISON, t, tr } from '../data/content.js';
+import { validateBDPhone } from '../utils.js';
+import { useToast } from '../components/Toast.jsx';
 import logo from '../assets/logo.png';
 
 const ACCENT = '#6366f1';
@@ -598,6 +600,166 @@ const WhyUs = ({ lang }) => {
 };
 
 /* ============== TESTIMONIALS ============== */
+/* ============== MONEY-BACK GUARANTEE BANNER ============== */
+const MoneyBackBanner = ({ lang }) => (
+  <section className="relative px-5 md:px-8 py-12 md:py-16">
+    <div
+      className="max-w-5xl mx-auto rounded-3xl p-6 md:p-10 border flex items-center gap-5 md:gap-8 flex-col md:flex-row text-center md:text-left"
+      style={{
+        background: 'linear-gradient(135deg, rgba(16,185,129,0.18), rgba(16,185,129,0.04))',
+        borderColor: 'rgba(16,185,129,0.35)',
+      }}
+    >
+      <div className="text-6xl md:text-7xl shrink-0 leading-none">🛡️</div>
+      <div className="flex-1">
+        <div className="inline-block text-[11px] font-extrabold tracking-wider px-3 py-1 rounded-full bg-emerald-500/20 text-emerald-200 border border-emerald-500/30">
+          {t(lang, 'moneyBackBadge')}
+        </div>
+        <h2 className="font-display text-2xl md:text-3xl font-extrabold text-white mt-3">
+          {t(lang, 'moneyBackTitle')}
+        </h2>
+        <p className="text-[14px] md:text-[15.5px] text-white/75 mt-2 leading-relaxed max-w-2xl">
+          {t(lang, 'moneyBackDesc')}
+        </p>
+      </div>
+    </div>
+  </section>
+);
+
+/* ============== FREE AUDIT (lead magnet) ============== */
+const LeadMagnet = ({ lang }) => {
+  const toast = useToast();
+  const [form, setForm] = useState({ name: '', phone: '', url: '' });
+  const [sending, setSending] = useState(false);
+  const [done, setDone] = useState(false);
+  const [errors, setErrors] = useState({});
+  const set = (k) => (e) => setForm({ ...form, [k]: e.target.value });
+
+  const submit = (e) => {
+    e.preventDefault();
+    const errs = {};
+    if (!form.name.trim()) errs.name = t(lang, 'validRequired');
+    if (!form.phone.trim()) errs.phone = t(lang, 'validRequired');
+    else if (!validateBDPhone(form.phone)) errs.phone = t(lang, 'validPhoneBD');
+    if (!form.url.trim()) errs.url = t(lang, 'validRequired');
+    setErrors(errs);
+    if (Object.keys(errs).length > 0) {
+      toast.error(t(lang, 'toastFormError'));
+      return;
+    }
+    setSending(true);
+    const payload = {
+      type: 'audit',
+      submittedAt: new Date().toISOString(),
+      lang,
+      ...form,
+    };
+    try {
+      const ex = JSON.parse(localStorage.getItem('wl_audit_leads') || '[]');
+      ex.push(payload);
+      localStorage.setItem('wl_audit_leads', JSON.stringify(ex));
+    } catch {}
+    fetch('/api/lead', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        ...payload,
+        refId: 'AUDIT-' + Math.floor(10000 + Math.random() * 89999),
+        note: `FREE AUDIT REQUEST · URL: ${form.url}`,
+      }),
+    })
+      .catch(() => {})
+      .finally(() => {
+        setSending(false);
+        setDone(true);
+        toast.success(t(lang, 'toastAuditSent'));
+      });
+  };
+
+  const fieldClass = (key) =>
+    `w-full text-[13.5px] px-3.5 py-3 rounded-lg border bg-white/[0.05] text-white outline-none focus:border-white/40 ${
+      errors[key] ? 'border-rose-400/60' : 'border-white/10'
+    }`;
+  const errLine = (key) =>
+    errors[key] ? <span className="block text-[11px] text-rose-300 mt-1">{errors[key]}</span> : null;
+
+  return (
+    <section className="relative py-16 md:py-24 px-5 md:px-8">
+      <div
+        className="max-w-5xl mx-auto rounded-3xl p-6 md:p-10 border border-white/10 grid md:grid-cols-2 gap-6 md:gap-10 items-center"
+        style={{
+          background:
+            'linear-gradient(135deg, rgba(99,102,241,0.18), rgba(236,72,153,0.12))',
+        }}
+      >
+        <div>
+          <div className="inline-block text-[11px] font-extrabold tracking-wider px-3 py-1 rounded-full bg-amber-400/20 text-amber-200 border border-amber-400/30">
+            {t(lang, 'auditBadge')}
+          </div>
+          <h2 className="font-display text-2xl md:text-4xl font-extrabold text-white mt-3 leading-tight">
+            {t(lang, 'auditTitle')}
+          </h2>
+          <p className="text-[14px] md:text-[15.5px] text-white/75 mt-3 leading-relaxed">
+            {t(lang, 'auditSubtitle')}
+          </p>
+          <div className="flex flex-wrap gap-3 mt-5 text-[12.5px] font-bold text-white/85">
+            <span className="px-3 py-1.5 rounded-md bg-white/10 border border-white/10">{t(lang, 'auditPerks1')}</span>
+            <span className="px-3 py-1.5 rounded-md bg-white/10 border border-white/10">{t(lang, 'auditPerks2')}</span>
+            <span className="px-3 py-1.5 rounded-md bg-white/10 border border-white/10">{t(lang, 'auditPerks3')}</span>
+          </div>
+        </div>
+
+        {done ? (
+          <div className="rounded-2xl p-6 md:p-7 border border-emerald-400/30 text-center" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.2), rgba(16,185,129,0.04))' }}>
+            <div className="text-5xl mb-2">✅</div>
+            <div className="font-display font-extrabold text-white text-[18px]">
+              {t(lang, 'toastAuditSent')}
+            </div>
+          </div>
+        ) : (
+          <form onSubmit={submit} className="rounded-2xl p-5 md:p-6 border border-white/10 bg-[#0b0f1a]/60 backdrop-blur-xl space-y-3">
+            <label className="block">
+              <span className="block text-[11px] font-bold text-white/65 mb-1.5">{t(lang, 'auditUrlLabel')} *</span>
+              <input
+                value={form.url}
+                onChange={set('url')}
+                placeholder={t(lang, 'auditUrlPlaceholder')}
+                className={fieldClass('url')}
+              />
+              {errLine('url')}
+            </label>
+            <div className="grid grid-cols-2 gap-3">
+              <label className="block">
+                <span className="block text-[11px] font-bold text-white/65 mb-1.5">{t(lang, 'auditNameLabel')} *</span>
+                <input value={form.name} onChange={set('name')} className={fieldClass('name')} />
+                {errLine('name')}
+              </label>
+              <label className="block">
+                <span className="block text-[11px] font-bold text-white/65 mb-1.5">{t(lang, 'auditPhoneLabel')} *</span>
+                <input
+                  type="tel"
+                  placeholder="01XXXXXXXXX"
+                  value={form.phone}
+                  onChange={set('phone')}
+                  className={fieldClass('phone')}
+                />
+                {errLine('phone')}
+              </label>
+            </div>
+            <button
+              type="submit"
+              disabled={sending}
+              className="w-full btn-primary text-[14px] md:text-[15px] font-extrabold py-3 rounded-xl disabled:opacity-60"
+            >
+              {sending ? t(lang, 'auditSubmitting') : t(lang, 'auditSubmit')}
+            </button>
+          </form>
+        )}
+      </div>
+    </section>
+  );
+};
+
 const HomeTestimonials = ({ lang }) => (
   <section className="relative py-16 md:py-20 px-5 md:px-8">
     <div className="max-w-5xl mx-auto">
@@ -671,7 +833,7 @@ const FinalCTA = ({ onStart, lang }) => (
 );
 
 /* ============== HOME FOOTER ============== */
-const HomeFooter = ({ onPricing, onContact, onAbout, onBlog, onPrivacy, onTerms, lang }) => (
+const HomeFooter = ({ onPricing, onContact, onAbout, onBlog, onPrivacy, onTerms, onTrack, onReferral, lang }) => (
   <footer className="border-t border-white/5 py-10 px-5 md:px-8">
     <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 text-[13px]">
       <div className="md:col-span-2">
@@ -693,6 +855,8 @@ const HomeFooter = ({ onPricing, onContact, onAbout, onBlog, onPrivacy, onTerms,
           <div><button onClick={onPricing} className="hover:text-white">{t(lang, 'navPricing')}</button></div>
           <div><button onClick={onBlog} className="hover:text-white">{t(lang, 'navBlog')}</button></div>
           <div><button onClick={onContact} className="hover:text-white">{t(lang, 'navContact')}</button></div>
+          {onTrack && <div><button onClick={onTrack} className="hover:text-white">{t(lang, 'navTrack')}</button></div>}
+          {onReferral && <div><button onClick={onReferral} className="hover:text-white">{t(lang, 'navReferral')}</button></div>}
         </div>
       </div>
       <div>
@@ -799,7 +963,7 @@ const HomeBackground = () => (
 );
 
 /* ============== MAIN HOMEPAGE ============== */
-export default function HomePage({ onStart, onPricing, onContact, onAbout, onBlog, onPrivacy, onTerms, lang = 'bn', onToggleLang }) {
+export default function HomePage({ onStart, onPricing, onContact, onAbout, onBlog, onPrivacy, onTerms, onTrack, onReferral, lang = 'bn', onToggleLang }) {
   useEffect(() => {
     document.documentElement.style.setProperty('--accent', ACCENT);
   }, []);
@@ -819,6 +983,8 @@ export default function HomePage({ onStart, onPricing, onContact, onAbout, onBlo
       <ComparisonTable lang={lang} />
       <PressFeatures lang={lang} />
       <HomeTestimonials lang={lang} />
+      <MoneyBackBanner lang={lang} />
+      <LeadMagnet lang={lang} />
       <FinalCTA onStart={onStart} lang={lang} />
       <HomeFooter
         onPricing={onPricing}
@@ -827,6 +993,8 @@ export default function HomePage({ onStart, onPricing, onContact, onAbout, onBlo
         onBlog={onBlog}
         onPrivacy={onPrivacy}
         onTerms={onTerms}
+        onTrack={onTrack}
+        onReferral={onReferral}
         lang={lang}
       />
       </div>

@@ -8,6 +8,8 @@ import AboutPage from './pages/AboutPage.jsx';
 import PrivacyPage from './pages/PrivacyPage.jsx';
 import TermsPage from './pages/TermsPage.jsx';
 import BlogPage from './pages/BlogPage.jsx';
+import TrackPage from './pages/TrackPage.jsx';
+import ReferralPage from './pages/ReferralPage.jsx';
 import { SITE_TYPES, getType } from './data/content.js';
 import { LangProvider } from './lang/LangContext.jsx';
 
@@ -117,6 +119,8 @@ export default function App() {
   const goPrivacy = () => setPage('privacy');
   const goTerms = () => setPage('terms');
   const goBlog = () => setPage('blog');
+  const goTrack = () => setPage('track');
+  const goReferral = () => setPage('referral');
 
   const handleSetType = (newType) => {
     setType(newType);
@@ -180,6 +184,8 @@ export default function App() {
     onPrivacy: goPrivacy,
     onTerms: goTerms,
     onBlog: goBlog,
+    onTrack: goTrack,
+    onReferral: goReferral,
     onStart: goToConfigurator,
     lang,
     onToggleLang: toggleLang,
@@ -245,6 +251,22 @@ export default function App() {
     return (
       <LangProvider lang={lang}>
         <BlogPage {...sharedNav} />
+      </LangProvider>
+    );
+  }
+
+  if (page === 'track') {
+    return (
+      <LangProvider lang={lang}>
+        <TrackPage {...sharedNav} />
+      </LangProvider>
+    );
+  }
+
+  if (page === 'referral') {
+    return (
+      <LangProvider lang={lang}>
+        <ReferralPage {...sharedNav} />
       </LangProvider>
     );
   }

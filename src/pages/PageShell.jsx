@@ -93,7 +93,7 @@ const Nav = ({ onHome, current, links, lang, onToggleLang, theme, onToggleTheme 
   </nav>
 );
 
-const Footer = ({ onHome, onPricing, onContact, onAbout, onPrivacy, onTerms, onBlog, lang }) => (
+const Footer = ({ onHome, onPricing, onContact, onAbout, onPrivacy, onTerms, onBlog, onTrack, onReferral, lang }) => (
   <footer className="border-t border-white/5 mt-12 py-10 px-5 md:px-8">
     <div className="max-w-6xl mx-auto grid md:grid-cols-4 gap-8 text-[13px]">
       <div className="md:col-span-2">
@@ -117,8 +117,10 @@ const Footer = ({ onHome, onPricing, onContact, onAbout, onPrivacy, onTerms, onB
         <div className="space-y-2 text-white/65">
           <div><button onClick={onAbout} className="hover:text-white">{t(lang, 'navAbout')}</button></div>
           <div><button onClick={onPricing} className="hover:text-white">{t(lang, 'navPricing')}</button></div>
-          <div><button onClick={onContact} className="hover:text-white">{t(lang, 'navContact')}</button></div>
           <div><button onClick={onBlog} className="hover:text-white">{t(lang, 'navBlog')}</button></div>
+          <div><button onClick={onContact} className="hover:text-white">{t(lang, 'navContact')}</button></div>
+          {onTrack && <div><button onClick={onTrack} className="hover:text-white">{t(lang, 'navTrack')}</button></div>}
+          {onReferral && <div><button onClick={onReferral} className="hover:text-white">{t(lang, 'navReferral')}</button></div>}
         </div>
       </div>
       <div>
@@ -148,6 +150,8 @@ export default function PageShell({
   onPrivacy,
   onTerms,
   onBlog,
+  onTrack,
+  onReferral,
   lang = 'bn',
   onToggleLang,
   theme = 'dark',
@@ -185,6 +189,8 @@ export default function PageShell({
         onPrivacy={onPrivacy}
         onTerms={onTerms}
         onBlog={onBlog}
+        onTrack={onTrack}
+        onReferral={onReferral}
         lang={lang}
       />
       <WhatsAppFAB lang={lang} />

@@ -219,6 +219,52 @@ const InfoCards = ({ lang }) => {
   );
 };
 
+const BkashSection = ({ lang }) => {
+  const [copied, setCopied] = useState(false);
+  const num = CONTACT_INFO.phone;
+  const display = CONTACT_INFO.phoneDisplay;
+  const copy = () => {
+    navigator.clipboard?.writeText(num).then(() => {
+      setCopied(true);
+      setTimeout(() => setCopied(false), 2000);
+    });
+  };
+  return (
+    <div
+      className="rounded-2xl p-5 border"
+      style={{
+        background: 'linear-gradient(135deg, rgba(226,19,110,0.18), rgba(226,19,110,0.04))',
+        borderColor: 'rgba(226,19,110,0.35)',
+      }}
+    >
+      <div className="flex items-center gap-2.5 mb-2">
+        <span className="px-2 py-1 rounded-md text-[10.5px] font-extrabold text-white" style={{ background: '#E2136E' }}>bKash</span>
+        <span className="text-[11px] font-bold text-white/65 uppercase tracking-wider">{t(lang, 'bkashSendMoney')}</span>
+      </div>
+      <div className="font-display text-[16px] md:text-[17px] font-extrabold text-white">
+        {t(lang, 'bkashSectionTitle')}
+      </div>
+      <div className="text-[12.5px] text-white/65 mt-1">
+        {t(lang, 'bkashSectionSub')}
+      </div>
+      <div className="mt-3 flex items-center gap-2 px-3 py-2.5 rounded-lg bg-white/[0.06] border border-white/10">
+        <div className="flex-1 min-w-0">
+          <div className="text-[10.5px] font-bold text-white/45 uppercase tracking-wider">{t(lang, 'bkashNumberLabel')}</div>
+          <div className="font-mono font-extrabold text-white text-[15px] md:text-[17px] tabular-nums">{display}</div>
+        </div>
+        <button
+          onClick={copy}
+          className="shrink-0 text-[11.5px] font-bold px-3 py-1.5 rounded-md text-white"
+          style={{ background: '#E2136E' }}
+        >
+          {copied ? t(lang, 'bkashCopied') : t(lang, 'bkashCopy')}
+        </button>
+      </div>
+      <div className="text-[11.5px] text-white/55 mt-2.5 leading-relaxed">{t(lang, 'bkashRefNote')}</div>
+    </div>
+  );
+};
+
 const WhyCallUs = ({ lang }) => (
   <div className="rounded-2xl p-5 border border-white/10" style={{ background: 'rgba(255,255,255,0.03)' }}>
     <div className="font-display text-[15px] font-extrabold text-white mb-3">{t(lang, 'contactWhyTitle')}</div>
@@ -384,6 +430,7 @@ export default function ContactPage({ onHome, onPricing, lang = 'bn', onToggleLa
             <div className="grid lg:grid-cols-2 gap-6">
               <div className="space-y-4">
                 <InfoCards lang={lang} />
+                <BkashSection lang={lang} />
                 <WhyCallUs lang={lang} />
                 <iframe
                   title="map"
