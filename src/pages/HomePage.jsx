@@ -389,43 +389,6 @@ const ComparisonTable = ({ lang }) => (
   </section>
 );
 
-/* ============== PRESS / MEDIA FEATURES ============== */
-const PressFeatures = ({ lang }) => {
-  const outlets = [
-    'The Daily Star',
-    'Prothom Alo',
-    'BD News 24',
-    'Dhaka Tribune',
-    'Bonik Barta',
-    'Tech Shohor',
-  ];
-  return (
-    <section className="relative py-12 md:py-16 px-5 md:px-8 border-y border-white/5">
-      <div className="max-w-6xl mx-auto">
-        <div className="text-center mb-6 md:mb-10">
-          <div className="inline-block text-[11px] font-extrabold tracking-wider px-3 py-1 rounded-full bg-white/5 border border-white/10 text-white/70">
-            {t(lang, 'pressBadge')}
-          </div>
-          <h2 className="font-display text-xl md:text-3xl font-extrabold text-white/90 mt-3">
-            {t(lang, 'pressHeading')}
-          </h2>
-        </div>
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-x-6 gap-y-5 items-center">
-          {outlets.map((name) => (
-            <div
-              key={name}
-              className="text-center font-display font-extrabold text-[13px] md:text-[15px] text-white/35 hover:text-white/70 transition-colors tracking-wide truncate"
-              title={name}
-            >
-              {name}
-            </div>
-          ))}
-        </div>
-      </div>
-    </section>
-  );
-};
-
 /* ============== HOW IT WORKS ============== */
 const HowItWorks = ({ lang }) => {
   const steps = [
@@ -981,7 +944,6 @@ export default function HomePage({ onStart, onPricing, onContact, onAbout, onBlo
       <SiteTypesShowcase onStart={onStart} lang={lang} />
       <WhyUs lang={lang} />
       <ComparisonTable lang={lang} />
-      <PressFeatures lang={lang} />
       <HomeTestimonials lang={lang} />
       <MoneyBackBanner lang={lang} />
       <LeadMagnet lang={lang} />
