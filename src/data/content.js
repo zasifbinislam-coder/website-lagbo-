@@ -1410,7 +1410,7 @@ export const CONTACT_INFO = {
 /* ---------- UI strings (bilingual: bn + en) ---------- */
 export const STRINGS = {
   bn: {
-    brand: 'Website Lagbe?',
+    brand: 'Website Lagbo',
     brandSubtitle: 'সাজান, দেখুন, পছন্দ হলে নিন',
     chooseSiteType: 'কী ধরনের সাইট চান?',
     alwaysIncluded: 'এগুলো সবসময় থাকবে',
@@ -2131,7 +2131,7 @@ export const STRINGS = {
     referralStatsEarned: 'আয়',
   },
   en: {
-    brand: 'Website Lagbe?',
+    brand: 'Website Lagbo',
     brandSubtitle: 'Customize, preview, then order',
     chooseSiteType: 'What kind of site do you want?',
     alwaysIncluded: 'Always included',

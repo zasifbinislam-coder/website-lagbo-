@@ -75,7 +75,7 @@ const ConfigPanel = ({
         >
           <img
             src={logo}
-            alt="Website Lagbe? Logo"
+            alt="Website Lagbo Logo"
             className="w-10 h-10 rounded-xl object-cover"
             style={{ boxShadow: `0 10px 30px -10px ${accent}` }}
           />
