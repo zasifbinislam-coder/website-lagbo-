@@ -1,17 +1,30 @@
-import { useEffect, useRef, useState } from 'react';
+import { lazy, Suspense, useEffect, useRef, useState } from 'react';
 import ConfigPanel from './components/ConfigPanel.jsx';
 import PreviewPanel from './components/PreviewPanel.jsx';
 import HomePage from './pages/HomePage.jsx';
-import PricingPage from './pages/PricingPage.jsx';
-import ContactPage from './pages/ContactPage.jsx';
-import AboutPage from './pages/AboutPage.jsx';
-import PrivacyPage from './pages/PrivacyPage.jsx';
-import TermsPage from './pages/TermsPage.jsx';
-import BlogPage from './pages/BlogPage.jsx';
-import TrackPage from './pages/TrackPage.jsx';
-import ReferralPage from './pages/ReferralPage.jsx';
 import { SITE_TYPES, getType } from './data/content.js';
 import { LangProvider } from './lang/LangContext.jsx';
+
+/* Code-split the secondary pages so the initial bundle (Home + Configurator)
+   stays small. Each lazy() page is its own chunk that's fetched only when
+   the user navigates to it. Reduces first-paint cost on slow mobile. */
+const PricingPage = lazy(() => import('./pages/PricingPage.jsx'));
+const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
+const AboutPage = lazy(() => import('./pages/AboutPage.jsx'));
+const PrivacyPage = lazy(() => import('./pages/PrivacyPage.jsx'));
+const TermsPage = lazy(() => import('./pages/TermsPage.jsx'));
+const BlogPage = lazy(() => import('./pages/BlogPage.jsx'));
+const TrackPage = lazy(() => import('./pages/TrackPage.jsx'));
+const ReferralPage = lazy(() => import('./pages/ReferralPage.jsx'));
+
+const PageLoader = () => (
+  <div className="absolute inset-0 grid place-items-center text-white/55 text-[13px]">
+    <div className="text-center">
+      <div className="w-8 h-8 mx-auto rounded-full border-2 border-white/10 border-t-indigo-400 spin" />
+      <div className="mt-3">লোড হচ্ছে...</div>
+    </div>
+  </div>
+);
 
 const initialFeaturesByType = () =>
   Object.fromEntries(SITE_TYPES.map((t) => [t.key, { ...t.defaults }]));
@@ -204,13 +217,15 @@ export default function App() {
   if (page === 'pricing') {
     return (
       <LangProvider lang={lang}>
-        <PricingPage
-          {...sharedNav}
-          onBackToConfig={goToConfigurator}
-          selectedType={type}
-          selectedFeatures={features}
-          accent={accent}
-        />
+        <Suspense fallback={<PageLoader />}>
+          <PricingPage
+            {...sharedNav}
+            onBackToConfig={goToConfigurator}
+            selectedType={type}
+            selectedFeatures={features}
+            accent={accent}
+          />
+        </Suspense>
       </LangProvider>
     );
   }
@@ -218,7 +233,7 @@ export default function App() {
   if (page === 'contact') {
     return (
       <LangProvider lang={lang}>
-        <ContactPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><ContactPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
@@ -226,7 +241,7 @@ export default function App() {
   if (page === 'about') {
     return (
       <LangProvider lang={lang}>
-        <AboutPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><AboutPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
@@ -234,7 +249,7 @@ export default function App() {
   if (page === 'privacy') {
     return (
       <LangProvider lang={lang}>
-        <PrivacyPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><PrivacyPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
@@ -242,7 +257,7 @@ export default function App() {
   if (page === 'terms') {
     return (
       <LangProvider lang={lang}>
-        <TermsPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><TermsPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
@@ -250,7 +265,7 @@ export default function App() {
   if (page === 'blog') {
     return (
       <LangProvider lang={lang}>
-        <BlogPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><BlogPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
@@ -258,7 +273,7 @@ export default function App() {
   if (page === 'track') {
     return (
       <LangProvider lang={lang}>
-        <TrackPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><TrackPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
@@ -266,7 +281,7 @@ export default function App() {
   if (page === 'referral') {
     return (
       <LangProvider lang={lang}>
-        <ReferralPage {...sharedNav} />
+        <Suspense fallback={<PageLoader />}><ReferralPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }

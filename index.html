@@ -65,6 +65,49 @@
       rel="stylesheet"
     />
 
+    <!-- Inline critical CSS for the loading shell. Renders BEFORE the React
+         bundle loads, so even on flaky 3G the user sees the brand and a
+         spinner immediately instead of a white page. Removed by React on mount. -->
+    <style>
+      html, body { margin: 0; padding: 0; height: 100%; background: #07091a; color: #e6e8ef; }
+      body {
+        font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', 'Nirmala UI', sans-serif;
+        overflow: hidden;
+      }
+      .wl-boot {
+        position: fixed; inset: 0; display: grid; place-items: center;
+        background:
+          radial-gradient(40% 50% at 18% 22%, rgba(139, 92, 246, 0.45), transparent 70%),
+          radial-gradient(35% 50% at 82% 18%, rgba(236, 72, 153, 0.4), transparent 70%),
+          radial-gradient(45% 55% at 60% 82%, rgba(56, 189, 248, 0.3), transparent 70%),
+          #07091a;
+        z-index: 1;
+        animation: wl-fade-in 200ms ease-out both;
+      }
+      .wl-boot-inner { text-align: center; padding: 24px; }
+      .wl-boot-logo {
+        font-size: 22px; font-weight: 800; letter-spacing: -0.01em;
+        background: linear-gradient(90deg, #fff 10%, #c7d2fe 50%, #fbcfe8 90%);
+        -webkit-background-clip: text; background-clip: text; color: transparent;
+      }
+      .wl-boot-spinner {
+        width: 32px; height: 32px; margin: 18px auto 0;
+        border-radius: 50%;
+        border: 3px solid rgba(255,255,255,0.08);
+        border-top-color: #6366f1;
+        animation: wl-spin 0.9s linear infinite;
+      }
+      .wl-boot-tagline { color: rgba(230,232,239,0.55); font-size: 13px; margin-top: 14px; }
+      .wl-boot-fallback { display: none; }
+      /* Show fallback links if React still isn't here after ~6s */
+      .wl-boot.wl-stuck .wl-boot-fallback { display: block; margin-top: 20px; }
+      .wl-boot.wl-stuck .wl-boot-spinner { display: none; }
+      .wl-boot a { color: #c7d2fe; text-decoration: none; font-weight: 600; }
+      .wl-boot a:hover { color: #fff; }
+      @keyframes wl-spin { to { transform: rotate(360deg); } }
+      @keyframes wl-fade-in { from { opacity: 0; } to { opacity: 1; } }
+    </style>
+
     <!-- Plausible analytics — replace data-domain with your real domain -->
     <script defer data-domain="websitelagbo.com" src="https://plausible.io/js/script.js"></script>
 
@@ -86,18 +129,71 @@
     -->
   </head>
   <body>
+    <!-- Loading shell. React replaces #root content on mount, so this
+         disappears as soon as the bundle parses. If the bundle fails to
+         load, the wl-stuck class shows fallback contact links so the user
+         still has a working path to call/WhatsApp us. -->
+    <div id="wl-boot" class="wl-boot">
+      <div class="wl-boot-inner">
+        <div class="wl-boot-logo">Website Lagbo</div>
+        <div class="wl-boot-spinner"></div>
+        <div class="wl-boot-tagline">লোড হচ্ছে...</div>
+        <div class="wl-boot-fallback">
+          <p style="color: rgba(255,255,255,0.65); font-size: 13.5px; margin: 12px 0 8px;">
+            লোড হতে দেরি হচ্ছে — সরাসরি যোগাযোগ:
+          </p>
+          <p style="font-size: 14px; font-weight: 700;">
+            <a href="tel:+8801920262202">📞 01920-262202</a> &nbsp;·&nbsp;
+            <a href="https://wa.me/8801920262202" target="_blank" rel="noreferrer">🟢 WhatsApp</a>
+          </p>
+          <p style="font-size: 12.5px; color: rgba(255,255,255,0.5); margin-top: 10px;">
+            <a href="javascript:location.reload()">🔄 আবার চেষ্টা করুন</a>
+          </p>
+        </div>
+      </div>
+    </div>
+
+    <noscript>
+      <div style="position:fixed;inset:0;display:grid;place-items:center;background:#07091a;color:#e6e8ef;font-family:system-ui,sans-serif;padding:24px;text-align:center;z-index:9999;">
+        <div>
+          <h1 style="font-size:22px;margin:0 0 12px;background:linear-gradient(90deg,#fff,#c7d2fe);-webkit-background-clip:text;background-clip:text;color:transparent;">Website Lagbo</h1>
+          <p style="color:rgba(230,232,239,0.65);font-size:14px;line-height:1.6;max-width:380px;margin:0 auto 18px;">
+            এই পেজটি দেখতে JavaScript দরকার। অনুগ্রহ করে JavaScript চালু করুন অথবা সরাসরি যোগাযোগ করুন:
+          </p>
+          <p style="font-size:15px;font-weight:700;">
+            <a href="tel:+8801920262202" style="color:#c7d2fe;text-decoration:none;">📞 01920-262202</a>
+          </p>
+          <p style="font-size:14px;margin-top:8px;">
+            <a href="https://wa.me/8801920262202" style="color:#22c55e;text-decoration:none;">🟢 WhatsApp</a>
+            &nbsp;·&nbsp;
+            <a href="mailto:websitelagbo@gmail.com" style="color:#0ea5e9;text-decoration:none;">📧 websitelagbo@gmail.com</a>
+          </p>
+        </div>
+      </div>
+    </noscript>
+
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
+      /* If the React bundle hasn't replaced #root within 6 seconds, surface
+         contact-fallback links inside the loading shell so the user still
+         has a way to reach us instead of staring at a frozen spinner. */
+      setTimeout(function () {
+        var boot = document.getElementById('wl-boot');
+        if (boot && document.getElementById('root') && !document.getElementById('root').firstChild) {
+          boot.classList.add('wl-stuck');
+        }
+      }, 6000);
+
       /* Service worker registration removed — see public/sw.js for history.
        * The /sw.js file still ships as a kill-switch: any device that previously
        * had an SW registered will fetch it on next visit, which auto-unregisters
        * and wipes its caches. This block ALSO unregisters any leftover SW from
        * earlier visits, so a returning user gets a clean slate immediately. */
       if ('serviceWorker' in navigator) {
-        navigator.serviceWorker.getRegistrations().then((regs) => {
-          for (const r of regs) r.unregister().catch(() => {});
-        }).catch(() => {});
+        navigator.serviceWorker.getRegistrations().then(function (regs) {
+          for (var i = 0; i < regs.length; i++) regs[i].unregister().catch(function () {});
+        }).catch(function () {});
       }
     </script>
   </body>
