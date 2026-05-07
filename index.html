@@ -90,8 +90,13 @@
     <script type="module" src="/src/main.jsx"></script>
     <script>
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-          navigator.serviceWorker.register('/sw.js').catch(() => {});
+        window.addEventListener('load', async () => {
+          try {
+            const reg = await navigator.serviceWorker.register('/sw.js');
+            // Force-check for an updated SW on every page load so old
+            // cached SWs on returning visitors get replaced quickly.
+            reg.update().catch(() => {});
+          } catch (_) {}
         });
       }
     </script>
