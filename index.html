@@ -89,15 +89,15 @@
     <div id="root"></div>
     <script type="module" src="/src/main.jsx"></script>
     <script>
+      /* Service worker registration removed — see public/sw.js for history.
+       * The /sw.js file still ships as a kill-switch: any device that previously
+       * had an SW registered will fetch it on next visit, which auto-unregisters
+       * and wipes its caches. This block ALSO unregisters any leftover SW from
+       * earlier visits, so a returning user gets a clean slate immediately. */
       if ('serviceWorker' in navigator) {
-        window.addEventListener('load', async () => {
-          try {
-            const reg = await navigator.serviceWorker.register('/sw.js');
-            // Force-check for an updated SW on every page load so old
-            // cached SWs on returning visitors get replaced quickly.
-            reg.update().catch(() => {});
-          } catch (_) {}
-        });
+        navigator.serviceWorker.getRegistrations().then((regs) => {
+          for (const r of regs) r.unregister().catch(() => {});
+        }).catch(() => {});
       }
     </script>
   </body>
