@@ -17,13 +17,25 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const data = req.body || {};
+
+  // Minimum field validation — block empty-body / spam submissions.
+  const name = (data.name || '').toString().trim();
+  const phone = (data.phone || '').toString().trim();
+  const message = (data.message || '').toString().trim();
+  if (!name || !phone || !message) {
+    return res.status(400).json({ error: 'Missing required fields: name, phone, message' });
+  }
+  if (!/^01[3-9]\d{8}$/.test(phone)) {
+    return res.status(400).json({ error: 'Invalid Bangladeshi phone number' });
+  }
+
   const summary = {
     receivedAt: new Date().toISOString(),
-    name: data.name || '',
-    phone: data.phone || '',
-    email: data.email || '',
-    subject: data.subject || '',
-    message: data.message || '',
+    name,
+    phone,
+    email: (data.email || '').toString().trim(),
+    subject: (data.subject || '').toString().trim(),
+    message,
     lang: data.lang || '',
     ip: req.headers['x-forwarded-for'] || '',
     ua: req.headers['user-agent'] || '',

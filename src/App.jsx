@@ -1,13 +1,13 @@
 import { lazy, Suspense, useEffect, useRef, useState } from 'react';
-import ConfigPanel from './components/ConfigPanel.jsx';
-import PreviewPanel from './components/PreviewPanel.jsx';
 import HomePage from './pages/HomePage.jsx';
 import { SITE_TYPES, getType } from './data/content.js';
 import { LangProvider } from './lang/LangContext.jsx';
 
-/* Code-split the secondary pages so the initial bundle (Home + Configurator)
-   stays small. Each lazy() page is its own chunk that's fetched only when
-   the user navigates to it. Reduces first-paint cost on slow mobile. */
+/* Code-split the secondary pages and the configurator panels so the initial
+   bundle (Home only) stays tiny. Each lazy() chunk is fetched only when the
+   user navigates to it — minimizes first-paint cost on slow mobile. */
+const ConfigPanel = lazy(() => import('./components/ConfigPanel.jsx'));
+const PreviewPanel = lazy(() => import('./components/PreviewPanel.jsx'));
 const PricingPage = lazy(() => import('./pages/PricingPage.jsx'));
 const ContactPage = lazy(() => import('./pages/ContactPage.jsx'));
 const AboutPage = lazy(() => import('./pages/AboutPage.jsx'));
@@ -98,6 +98,23 @@ export default function App() {
       window.removeEventListener('orientationchange', update);
     };
   }, []);
+
+  /* Prefetch configurator chunks during idle time on Home so clicking
+     "Start" feels instant. Also warm the API lambda so the first form
+     submit doesn't pay cold-start. Skips on slow connections / data-saver. */
+  useEffect(() => {
+    if (page !== 'home') return;
+    const conn = navigator.connection;
+    if (conn && (conn.saveData || /2g/.test(conn.effectiveType || ''))) return;
+    const idle = window.requestIdleCallback || ((cb) => setTimeout(cb, 1500));
+    const cancel = window.cancelIdleCallback || clearTimeout;
+    const handle = idle(() => {
+      import('./components/ConfigPanel.jsx');
+      import('./components/PreviewPanel.jsx');
+      fetch('/api/health', { cache: 'no-store' }).catch(() => {});
+    });
+    return () => cancel(handle);
+  }, [page]);
 
   /* Cursor spotlight — sets --mx / --my CSS vars used by body::after */
   useEffect(() => {
@@ -288,47 +305,49 @@ export default function App() {
 
   return (
     <LangProvider lang={lang}>
-      <div className="h-full w-full flex flex-col">
-        <div className="flex-1 min-h-0 flex flex-col md:flex-row">
-          <ConfigPanel
-            type={type}
-            setType={handleSetType}
-            features={features}
-            setFeatures={setFeatures}
-            accent={accent}
-            setAccent={setAccent}
-            onSetAllExtras={setAllExtras}
-            onReset={resetAll}
-            onGoHome={goHome}
-            onGetQuote={goPricing}
-            onContact={goContact}
-            lang={lang}
-            onToggleLang={toggleLang}
-            mobileVisible={mobileTab === 'config'}
-            onPreviewMobile={() => {
-              setDevice('mobile');
-              setMobileTab('preview');
-            }}
-          />
-          <PreviewPanel
-            type={type}
-            features={features}
-            accent={accent}
-            device={device}
-            setDevice={setDevice}
-            cart={cart}
-            onAdd={addToCart}
-            onPlace={placeOrder}
-            placing={placing}
-            orderId={orderId}
-            previewRef={previewRef}
-            lang={lang}
-            mobileVisible={mobileTab === 'preview'}
-            onEditMobile={() => setMobileTab('config')}
-            onGetQuote={goPricing}
-          />
+      <Suspense fallback={<PageLoader />}>
+        <div className="h-full w-full flex flex-col">
+          <div className="flex-1 min-h-0 flex flex-col md:flex-row">
+            <ConfigPanel
+              type={type}
+              setType={handleSetType}
+              features={features}
+              setFeatures={setFeatures}
+              accent={accent}
+              setAccent={setAccent}
+              onSetAllExtras={setAllExtras}
+              onReset={resetAll}
+              onGoHome={goHome}
+              onGetQuote={goPricing}
+              onContact={goContact}
+              lang={lang}
+              onToggleLang={toggleLang}
+              mobileVisible={mobileTab === 'config'}
+              onPreviewMobile={() => {
+                setDevice('mobile');
+                setMobileTab('preview');
+              }}
+            />
+            <PreviewPanel
+              type={type}
+              features={features}
+              accent={accent}
+              device={device}
+              setDevice={setDevice}
+              cart={cart}
+              onAdd={addToCart}
+              onPlace={placeOrder}
+              placing={placing}
+              orderId={orderId}
+              previewRef={previewRef}
+              lang={lang}
+              mobileVisible={mobileTab === 'preview'}
+              onEditMobile={() => setMobileTab('config')}
+              onGetQuote={goPricing}
+            />
+          </div>
         </div>
-      </div>
+      </Suspense>
     </LangProvider>
   );
 }

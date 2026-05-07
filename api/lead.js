@@ -18,6 +18,17 @@ export default async function handler(req, res) {
   if (req.method !== 'POST') return res.status(405).json({ error: 'Method not allowed' });
 
   const data = req.body || {};
+
+  // Minimum field validation — block empty-body / spam submissions.
+  const name = (data.name || '').toString().trim();
+  const phone = (data.phone || '').toString().trim();
+  if (!name || !phone) {
+    return res.status(400).json({ error: 'Missing required fields: name and phone' });
+  }
+  if (!/^01[3-9]\d{8}$/.test(phone)) {
+    return res.status(400).json({ error: 'Invalid Bangladeshi phone number' });
+  }
+
   const refId = data.refId || 'WL-' + Math.floor(10000 + Math.random() * 89999);
 
   const summary = {
