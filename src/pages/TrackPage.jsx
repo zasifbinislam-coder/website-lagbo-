@@ -5,13 +5,25 @@ import { formatBDT } from '../utils.js';
 
 const ACCENT = '#6366f1';
 
-/* Map elapsed-time-since-submission to a step (0..4). Demo logic until
-   we have a real DB of order statuses — pulls leads from localStorage. */
-const STEP_THRESHOLDS_HOURS = [0, 1, 4, 24, 48]; // step 0,1,2,3,4 from order time
-const computeStep = (submittedAtISO) => {
-  if (!submittedAtISO) return 0;
-  const ms = Date.now() - new Date(submittedAtISO).getTime();
-  const hours = ms / (1000 * 60 * 60);
+/* Map a lead to its step (0..4). When a real DB status is available we
+   trust it; otherwise we fall back to a time-based heuristic so even
+   localStorage-only orders show some progress. */
+const STATUS_TO_STEP = {
+  new: 0,
+  called: 1,
+  building: 2,
+  review: 3,
+  live: 4,
+};
+const STEP_THRESHOLDS_HOURS = [0, 1, 4, 24, 48];
+
+const computeStep = (lead) => {
+  if (!lead) return 0;
+  if (lead.status && STATUS_TO_STEP[lead.status] != null) {
+    return STATUS_TO_STEP[lead.status];
+  }
+  if (!lead.submittedAt) return 0;
+  const hours = (Date.now() - new Date(lead.submittedAt).getTime()) / (1000 * 60 * 60);
   let step = 0;
   for (let i = 0; i < STEP_THRESHOLDS_HOURS.length; i++) {
     if (hours >= STEP_THRESHOLDS_HOURS[i]) step = i;
@@ -19,13 +31,47 @@ const computeStep = (submittedAtISO) => {
   return step;
 };
 
-const findLead = (refId) => {
+/* Lookup priority:
+   1. Server (cross-device, source of truth) — /api/track?ref=...
+   2. localStorage fallback (same-device offline) */
+const findLeadLocal = (refId) => {
   try {
     const leads = JSON.parse(localStorage.getItem('wl_pricing_leads') || '[]');
-    return leads.find((l) => (l.refId || '').toLowerCase() === refId.toLowerCase()) || null;
+    const found = leads.find((l) => (l.refId || '').toLowerCase() === refId.toLowerCase());
+    if (!found) return null;
+    return {
+      refId: found.refId,
+      submittedAt: found.submittedAt,
+      name: found.name,
+      type: found.type,
+      features: found.features || [],
+      duration: found.duration,
+      pricing: found.pricing || {},
+      status: 'new',
+      lang: found.lang || 'bn',
+    };
   } catch {
     return null;
   }
+};
+
+const findLeadRemote = async (refId) => {
+  try {
+    const res = await fetch(`/api/track?ref=${encodeURIComponent(refId)}`);
+    if (!res.ok) return null;
+    const data = await res.json();
+    return data.lead || null;
+  } catch {
+    return null;
+  }
+};
+
+const findLead = async (refId) => {
+  /* Try server first; fall back to localStorage if server is unreachable
+     OR doesn't have the order (e.g., older orders before DB existed). */
+  const remote = await findLeadRemote(refId);
+  if (remote) return remote;
+  return findLeadLocal(refId);
 };
 
 const StepRow = ({ icon, title, desc, state }) => {
@@ -57,7 +103,7 @@ const StepRow = ({ icon, title, desc, state }) => {
 };
 
 const Result = ({ lead, lang }) => {
-  const step = computeStep(lead.submittedAt);
+  const step = computeStep(lead);
   const total = lead?.pricing?.total || 0;
   const submitted = new Date(lead.submittedAt).toLocaleString(lang === 'en' ? 'en-US' : 'en-IN');
   const eta = new Date(new Date(lead.submittedAt).getTime() + 48 * 60 * 60 * 1000).toLocaleString(lang === 'en' ? 'en-US' : 'en-IN');
@@ -124,21 +170,22 @@ export default function TrackPage(props) {
   const [lead, setLead] = useState(null);
   const [error, setError] = useState('');
 
-  const submit = (e) => {
+  const submit = async (e) => {
     e?.preventDefault?.();
     if (!refId.trim()) return;
     setSearching(true);
     setError('');
-    setTimeout(() => {
-      const found = findLead(refId.trim());
+    try {
+      const found = await findLead(refId.trim());
       if (found) {
         setLead(found);
       } else {
         setError(t(lang, 'trackNotFound'));
         setLead(null);
       }
+    } finally {
       setSearching(false);
-    }, 400);
+    }
   };
 
   return (

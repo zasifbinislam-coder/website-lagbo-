@@ -1,6 +1,10 @@
 /* Vercel serverless function — receives Pricing-page lead submissions.
-   If RESEND_API_KEY is set in Vercel env, sends an email to TO_EMAIL.
-   Without it, just logs and returns 200 (so the form still feels successful). */
+   - Writes the lead into Supabase `leads` table (if SUPABASE_* env set).
+   - Sends an email via Resend (if RESEND_API_KEY env set).
+   - Both are best-effort: a failure in one doesn't block the other.
+   - Always returns 200 so the form feels successful even on partial outage. */
+
+import { getSupabase } from './_supabase.js';
 
 const TO_EMAIL = process.env.LEAD_TO_EMAIL || 'websitelagbo@gmail.com';
 const FROM_EMAIL = process.env.LEAD_FROM_EMAIL || 'onboarding@resend.dev';
@@ -36,6 +40,34 @@ export default async function handler(req, res) {
 
   console.log('NEW LEAD', JSON.stringify(summary));
 
+  // ---- 1. Persist to Supabase (best-effort) ----
+  const supa = getSupabase();
+  if (supa) {
+    try {
+      const { error: insertErr } = await supa.from('leads').insert({
+        ref_id:       refId,
+        name:         summary.name,
+        phone:        summary.phone,
+        email:        summary.email || null,
+        business:     summary.business || null,
+        note:         summary.note || null,
+        type:         summary.type || null,
+        features:     summary.features || [],
+        duration:     typeof summary.duration === 'number' ? summary.duration : null,
+        addons:       summary.addons || [],
+        pricing:      summary.pricing || {},
+        lang:         summary.lang || 'bn',
+        ip:           summary.ip || null,
+        ua:           summary.ua || null,
+        payload:      data,
+      });
+      if (insertErr) console.error('Supabase insert error', insertErr);
+    } catch (e) {
+      console.error('Supabase exception', e);
+    }
+  }
+
+  // ---- 2. Send email via Resend (best-effort) ----
   const apiKey = process.env.RESEND_API_KEY;
   if (apiKey) {
     try {

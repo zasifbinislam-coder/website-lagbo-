@@ -1,6 +1,9 @@
 /* Vercel serverless function — receives Contact-page messages.
-   If RESEND_API_KEY is set in Vercel env, sends an email to TO_EMAIL.
-   Without it, just logs and returns 200. */
+   - Writes the message into Supabase `contact_messages` table.
+   - Sends an email via Resend.
+   - Best-effort on both; always returns 200. */
+
+import { getSupabase } from './_supabase.js';
 
 const TO_EMAIL = process.env.LEAD_TO_EMAIL || 'websitelagbo@gmail.com';
 const FROM_EMAIL = process.env.LEAD_FROM_EMAIL || 'onboarding@resend.dev';
@@ -28,6 +31,27 @@ export default async function handler(req, res) {
 
   console.log('NEW CONTACT MESSAGE', JSON.stringify(summary));
 
+  // ---- 1. Persist to Supabase ----
+  const supa = getSupabase();
+  if (supa) {
+    try {
+      const { error: insertErr } = await supa.from('contact_messages').insert({
+        name:    summary.name,
+        phone:   summary.phone,
+        email:   summary.email || null,
+        subject: summary.subject || null,
+        message: summary.message,
+        lang:    summary.lang || 'bn',
+        ip:      summary.ip || null,
+        ua:      summary.ua || null,
+      });
+      if (insertErr) console.error('Supabase insert error', insertErr);
+    } catch (e) {
+      console.error('Supabase exception', e);
+    }
+  }
+
+  // ---- 2. Email via Resend ----
   const apiKey = process.env.RESEND_API_KEY;
   if (apiKey) {
     try {
