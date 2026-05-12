@@ -75,3 +75,30 @@ create index if not exists idx_referrals_code on public.referrals(code);
 alter table public.leads            enable row level security;
 alter table public.contact_messages enable row level security;
 alter table public.referrals        enable row level security;
+
+-- Payments (from /api/payment — manual MFS reconciliation flow)
+create table if not exists public.payments (
+  id              uuid primary key default gen_random_uuid(),
+  submitted_at    timestamptz default now(),
+  ref_id          text not null,                 -- order ref, e.g. WL-12345
+  method          text not null,                 -- 'bkash' | 'nagad' | 'rocket' | 'upay'
+  transaction_id  text not null,                 -- customer-pasted MFS TrxID
+  amount          numeric,                       -- BDT, what they say they sent
+  status          text default 'pending',        -- pending | verified | rejected
+  verified_at     timestamptz,
+  verified_by     text,
+  rejection_reason text,
+  customer_name   text,
+  customer_phone  text,
+  customer_email  text,
+  note            text,
+  ip              text,
+  ua              text
+);
+
+create index if not exists idx_payments_ref       on public.payments(ref_id);
+create index if not exists idx_payments_status    on public.payments(status);
+create index if not exists idx_payments_trxid     on public.payments(transaction_id);
+create index if not exists idx_payments_submitted on public.payments(submitted_at desc);
+
+alter table public.payments enable row level security;

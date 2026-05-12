@@ -102,7 +102,7 @@ const StepRow = ({ icon, title, desc, state }) => {
   );
 };
 
-const Result = ({ lead, lang }) => {
+const Result = ({ lead, lang, onPay }) => {
   const step = computeStep(lead);
   const total = lead?.pricing?.total || 0;
   const submitted = new Date(lead.submittedAt).toLocaleString(lang === 'en' ? 'en-US' : 'en-IN');
@@ -159,12 +159,34 @@ const Result = ({ lead, lang }) => {
           />
         ))}
       </div>
+
+      {total > 0 && step < 4 && onPay && (
+        <div className="mt-2 pt-5 border-t border-white/10">
+          <a
+            href={`/payment/${encodeURIComponent(lead.refId)}`}
+            onClick={(e) => {
+              if (onPay) {
+                e.preventDefault();
+                onPay(lead.refId);
+              }
+            }}
+            className="btn-primary inline-flex items-center justify-center w-full md:w-auto text-[13.5px] font-extrabold px-6 py-3 rounded-xl"
+          >
+            {lang === 'en' ? '💳 Pay now' : '💳 এখনই পেমেন্ট করুন'}
+          </a>
+          <div className="text-[11.5px] text-white/45 mt-2">
+            {lang === 'en'
+              ? 'bKash / Nagad / Rocket / Upay — submit your TrxID after sending.'
+              : 'bKash / Nagad / Rocket / Upay — পাঠানোর পর TrxID সাবমিট করুন।'}
+          </div>
+        </div>
+      )}
     </div>
   );
 };
 
 export default function TrackPage(props) {
-  const { lang = 'bn' } = props;
+  const { lang = 'bn', onPayment } = props;
   const [refId, setRefId] = useState('');
   const [searching, setSearching] = useState(false);
   const [lead, setLead] = useState(null);
@@ -227,7 +249,16 @@ export default function TrackPage(props) {
           </div>
         )}
 
-        {lead && <Result lead={lead} lang={lang} />}
+        {lead && (
+          <Result
+            lead={lead}
+            lang={lang}
+            onPay={(ref) => {
+              window.history.pushState({}, '', `/payment/${encodeURIComponent(ref)}`);
+              window.dispatchEvent(new PopStateEvent('popstate'));
+            }}
+          />
+        )}
       </section>
     </PageShell>
   );

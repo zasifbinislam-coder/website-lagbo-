@@ -16,6 +16,8 @@ const TermsPage = lazy(() => import('./pages/TermsPage.jsx'));
 const BlogPage = lazy(() => import('./pages/BlogPage.jsx'));
 const TrackPage = lazy(() => import('./pages/TrackPage.jsx'));
 const ReferralPage = lazy(() => import('./pages/ReferralPage.jsx'));
+const AdminPage = lazy(() => import('./pages/AdminPage.jsx'));
+const PaymentPage = lazy(() => import('./pages/PaymentPage.jsx'));
 
 const PageLoader = () => (
   <div className="absolute inset-0 grid place-items-center text-white/55 text-[13px]">
@@ -47,8 +49,64 @@ const readStoredTheme = () => {
   }
 };
 
+/* Path-based routing. Each page has a clean URL — share-able, browser
+   back/forward works, SEO sees distinct URLs per page. The /payment route
+   accepts an optional trailing ref id: /payment/WL-12345 prefills it. */
+const PATH_FROM_PAGE = {
+  home:         '/',
+  configurator: '/configurator',
+  pricing:      '/pricing',
+  contact:      '/contact',
+  about:        '/about',
+  privacy:      '/privacy',
+  terms:        '/terms',
+  blog:         '/blog',
+  track:        '/track',
+  referral:     '/referral',
+  admin:        '/admin',
+  payment:      '/payment',
+};
+
+const pageFromUrl = () => {
+  try {
+    const raw = window.location.pathname || '/';
+    const path = raw.length > 1 ? raw.replace(/\/$/, '') : '/';
+    for (const [page, p] of Object.entries(PATH_FROM_PAGE)) {
+      if (p === path) return page;
+    }
+    if (path.startsWith('/payment/')) return 'payment';
+    if (path.startsWith('/track/'))   return 'track';
+    // Legacy ?page=admin support (in case any old bookmarks)
+    const q = new URLSearchParams(window.location.search).get('page');
+    if (q && PATH_FROM_PAGE[q]) return q;
+  } catch {}
+  return 'home';
+};
+
+const navigateTo = (page) => {
+  if (typeof window === 'undefined') return;
+  const targetPath = PATH_FROM_PAGE[page] || '/';
+  const currentPath = window.location.pathname || '/';
+  // Stay on subpaths of the same page (e.g. /payment/WL-123 → /payment)
+  if (currentPath === targetPath) return;
+  if (targetPath !== '/' && currentPath.startsWith(targetPath + '/')) return;
+  window.history.pushState({ page }, '', targetPath);
+};
+
 export default function App() {
-  const [page, setPage] = useState('home'); // 'home' | 'configurator'
+  const [page, setPage] = useState(pageFromUrl); // 'home' | 'configurator' | ...
+
+  /* Browser back / forward syncs URL → page state. */
+  useEffect(() => {
+    const onPopState = () => setPage(pageFromUrl());
+    window.addEventListener('popstate', onPopState);
+    return () => window.removeEventListener('popstate', onPopState);
+  }, []);
+
+  const setPageAndUrl = (newPage) => {
+    navigateTo(newPage);
+    setPage(newPage);
+  };
   const [type, setType] = useState('landing');
   const [featuresByType, setFeaturesByType] = useState(initialFeaturesByType);
   const [accent, setAccent] = useState(getType('landing').accent);
@@ -141,16 +199,17 @@ export default function App() {
   const toggleLang = () => setLang((l) => (l === 'en' ? 'bn' : 'en'));
   const toggleTheme = () => setTheme((t) => (t === 'dark' ? 'light' : 'dark'));
 
-  const goToConfigurator = () => setPage('configurator');
-  const goHome = () => setPage('home');
-  const goPricing = () => setPage('pricing');
-  const goContact = () => setPage('contact');
-  const goAbout = () => setPage('about');
-  const goPrivacy = () => setPage('privacy');
-  const goTerms = () => setPage('terms');
-  const goBlog = () => setPage('blog');
-  const goTrack = () => setPage('track');
-  const goReferral = () => setPage('referral');
+  const goToConfigurator = () => setPageAndUrl('configurator');
+  const goHome = () => setPageAndUrl('home');
+  const goPricing = () => setPageAndUrl('pricing');
+  const goContact = () => setPageAndUrl('contact');
+  const goAbout = () => setPageAndUrl('about');
+  const goPrivacy = () => setPageAndUrl('privacy');
+  const goTerms = () => setPageAndUrl('terms');
+  const goBlog = () => setPageAndUrl('blog');
+  const goTrack = () => setPageAndUrl('track');
+  const goReferral = () => setPageAndUrl('referral');
+  const goPayment = () => setPageAndUrl('payment');
 
   const handleSetType = (newType) => {
     setType(newType);
@@ -216,6 +275,7 @@ export default function App() {
     onBlog: goBlog,
     onTrack: goTrack,
     onReferral: goReferral,
+    onPayment: goPayment,
     onStart: goToConfigurator,
     lang,
     onToggleLang: toggleLang,
@@ -291,6 +351,22 @@ export default function App() {
     return (
       <LangProvider lang={lang}>
         <Suspense fallback={<PageLoader />}><TrackPage {...sharedNav} /></Suspense>
+      </LangProvider>
+    );
+  }
+
+  if (page === 'admin') {
+    /* No LangProvider, no nav, no footer — standalone dashboard.
+       Reachable only via /admin. Hidden from sitemap + robots. */
+    return (
+      <Suspense fallback={<PageLoader />}><AdminPage /></Suspense>
+    );
+  }
+
+  if (page === 'payment') {
+    return (
+      <LangProvider lang={lang}>
+        <Suspense fallback={<PageLoader />}><PaymentPage {...sharedNav} /></Suspense>
       </LangProvider>
     );
   }
