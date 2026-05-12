@@ -1383,17 +1383,17 @@ export const TERMS_SECTIONS = [
   {
     title: 'যোগাযোগ',
     title_en: 'Contact',
-    body: 'এই শর্তাবলী সম্পর্কে প্রশ্ন থাকলে যোগাযোগ করুন: websitelagbo@gmail.com বা +৮৮০ ১৯২০-২৬২২০২',
-    body_en: 'Questions about these terms? Contact: websitelagbo@gmail.com or +880 1920-262202',
+    body: 'এই শর্তাবলী সম্পর্কে প্রশ্ন থাকলে যোগাযোগ করুন: websitelagbo@gmail.com বা +৮৮০ ১৮০৫-৬২৫১৫১',
+    body_en: 'Questions about these terms? Contact: websitelagbo@gmail.com or +880 1805-625151',
   },
 ];
 
 /* ---------- Contact info ---------- */
 
 export const CONTACT_INFO = {
-  phone: '01920262202',
-  phoneDisplay: '01920-262202',
-  whatsapp: '01920262202',
+  phone: '01805625151',
+  phoneDisplay: '01805-625151',
+  whatsapp: '01805625151',
   email: 'websitelagbo@gmail.com',
   address: 'ধানমন্ডি ১০, ঢাকা',
   address_en: 'Dhanmondi 10, Dhaka',
