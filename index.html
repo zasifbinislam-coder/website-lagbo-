@@ -108,12 +108,9 @@
       @keyframes wl-fade-in { from { opacity: 0; } to { opacity: 1; } }
     </style>
 
-    <!-- Plausible analytics — disabled until websitelagbo.com is registered.
-         Plausible drops events whose data-domain isn't on the dashboard, so
-         shipping the script while the domain is unbought just adds a 3rd-party
-         request for nothing. Re-enable by un-commenting after buying the domain
-         + adding it in Plausible. -->
-    <!-- <script defer data-domain="websitelagbo.com" src="https://plausible.io/js/script.js"></script> -->
+    <!-- Plausible analytics — domain must be added in your Plausible dashboard
+         (plausible.io/sites) for events to be recorded. -->
+    <script defer data-domain="websitelagbo.com" src="https://plausible.io/js/script.js"></script>
 
     <!-- Facebook Pixel — replace YOUR_PIXEL_ID below with your real Pixel ID
          from https://business.facebook.com/events_manager. The script is
