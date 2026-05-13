@@ -53,7 +53,6 @@ const Nav = ({ onHome, onAbout, onBlog, onTrack, onContact, onBackToConfig, lang
             src={logo}
             alt="Website Lagbo Logo"
             className="h-14 md:h-20 lg:h-24 w-auto object-contain"
-            style={{ filter: `drop-shadow(0 6px 16px ${ACCENT}aa) drop-shadow(0 0 6px rgba(236,72,153,0.45))` }}
           />
         </button>
         <div className="flex items-center gap-3 md:gap-4 text-[13.5px] font-semibold text-white/70">
