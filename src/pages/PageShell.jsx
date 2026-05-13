@@ -163,9 +163,10 @@ export default function PageShell({
   }, []);
 
   const links = [
-    { key: 'about', label: t(lang, 'navAbout'), onClick: onAbout },
+    { key: 'about',   label: t(lang, 'navAbout'),   onClick: onAbout },
     { key: 'pricing', label: t(lang, 'navPricing'), onClick: onPricing },
-    { key: 'blog', label: t(lang, 'navBlog'), onClick: onBlog },
+    { key: 'blog',    label: t(lang, 'navBlog'),    onClick: onBlog },
+    { key: 'track',   label: t(lang, 'navTrack'),   onClick: onTrack },
     { key: 'contact', label: t(lang, 'navContact'), onClick: onContact },
   ];
 

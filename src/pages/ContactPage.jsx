@@ -18,34 +18,51 @@ const LangToggle = ({ lang, onToggle }) => (
   </button>
 );
 
-const Nav = ({ onHome, onPricing, lang, onToggleLang }) => (
-  <nav
-    className="sticky top-0 z-30 backdrop-blur-2xl border-b"
-    style={{
-      background:
-        'linear-gradient(180deg, rgba(7,9,26,0.92) 0%, rgba(7,9,26,0.78) 100%)',
-      borderColor: 'rgba(255,255,255,0.08)',
-      boxShadow: '0 6px 28px -16px rgba(0,0,0,0.7)',
-    }}
-  >
-    <div className="max-w-6xl mx-auto px-5 md:px-8 h-20 md:h-28 flex items-center justify-between">
-      <button onClick={onHome} className="flex items-center gap-2.5">
-        <img loading="lazy" decoding="async"
-          src={logo}
-          alt="Website Lagbo Logo"
-          className="h-14 md:h-20 lg:h-24 w-auto object-contain"
-          style={{ filter: `drop-shadow(0 6px 16px ${ACCENT}aa) drop-shadow(0 0 6px rgba(236,72,153,0.45))` }}
-        />
-      </button>
-      <div className="flex items-center gap-3 md:gap-4 text-[13.5px] font-semibold text-white/70">
-        <button onClick={onHome} className="hidden md:inline hover:text-white">{lang === 'en' ? 'Home' : 'হোম'}</button>
-        <button onClick={onPricing} className="hidden md:inline hover:text-white">{t(lang, 'navPricing')}</button>
-        <span className="hidden md:inline text-white px-2 py-1 rounded-md bg-white/10">{t(lang, 'navContact')}</span>
-        <LangToggle lang={lang} onToggle={onToggleLang} />
+const Nav = ({ onHome, onAbout, onPricing, onBlog, onTrack, onContact, lang, onToggleLang, current = 'contact' }) => {
+  const links = [
+    { key: 'about',   label: t(lang, 'navAbout'),   onClick: onAbout },
+    { key: 'pricing', label: t(lang, 'navPricing'), onClick: onPricing },
+    { key: 'blog',    label: t(lang, 'navBlog'),    onClick: onBlog },
+    { key: 'track',   label: t(lang, 'navTrack'),   onClick: onTrack },
+    { key: 'contact', label: t(lang, 'navContact'), onClick: onContact },
+  ];
+  return (
+    <nav
+      className="sticky top-0 z-30 backdrop-blur-2xl border-b"
+      style={{
+        background:
+          'linear-gradient(180deg, rgba(7,9,26,0.92) 0%, rgba(7,9,26,0.78) 100%)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        boxShadow: '0 6px 28px -16px rgba(0,0,0,0.7)',
+      }}
+    >
+      <div className="max-w-6xl mx-auto px-5 md:px-8 h-20 md:h-28 flex items-center justify-between">
+        <button onClick={onHome} className="flex items-center gap-2.5">
+          <img loading="lazy" decoding="async"
+            src={logo}
+            alt="Website Lagbo Logo"
+            className="h-14 md:h-20 lg:h-24 w-auto object-contain"
+            style={{ filter: `drop-shadow(0 6px 16px ${ACCENT}aa) drop-shadow(0 0 6px rgba(236,72,153,0.45))` }}
+          />
+        </button>
+        <div className="flex items-center gap-3 md:gap-4 text-[13.5px] font-semibold text-white/70">
+          {links.map((link) => (
+            <button
+              key={link.key}
+              onClick={link.onClick}
+              className={`hidden md:inline transition-colors ${
+                current === link.key ? 'text-white px-2 py-1 rounded-md bg-white/10' : 'hover:text-white'
+              }`}
+            >
+              {link.label}
+            </button>
+          ))}
+          <LangToggle lang={lang} onToggle={onToggleLang} />
+        </div>
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 /* Open Sat-Thu 10am-8pm; closed Friday */
 const computeOpenStatus = () => {
@@ -58,7 +75,6 @@ const computeOpenStatus = () => {
 };
 
 const Hero = ({ lang }) => {
-  const open = computeOpenStatus();
   return (
     <section className="relative overflow-hidden">
       <div
@@ -72,17 +88,6 @@ const Hero = ({ lang }) => {
       <div className="relative max-w-5xl mx-auto px-5 md:px-8 py-12 md:py-16 text-center">
         <div className="inline-flex items-center gap-2 text-[12px] font-bold px-3 py-1.5 rounded-full bg-white/5 border border-white/10 text-white/80">
           {t(lang, 'contactHeroBadge')}
-        </div>
-        <div className="mt-3">
-          <span
-            className={`inline-block text-[11px] font-bold px-3 py-1 rounded-full border ${
-              open
-                ? 'bg-emerald-500/15 text-emerald-300 border-emerald-500/30'
-                : 'bg-rose-500/15 text-rose-300 border-rose-500/30'
-            }`}
-          >
-            {open ? t(lang, 'contactBadgeOpen') : t(lang, 'contactBadgeClosed')}
-          </span>
         </div>
         <h1 className="font-display text-3xl md:text-5xl font-extrabold leading-[1.15] mt-5 text-white">
           {t(lang, 'contactHeroTitle')}
@@ -371,7 +376,7 @@ const ThanksScreen = ({ onHome, lang }) => (
   </div>
 );
 
-export default function ContactPage({ onHome, onPricing, lang = 'bn', onToggleLang }) {
+export default function ContactPage({ onHome, onAbout, onPricing, onBlog, onTrack, onContact, lang = 'bn', onToggleLang }) {
   const [form, setForm] = useState({ name: '', phone: '', email: '', subject: '', message: '' });
   const [sending, setSending] = useState(false);
   const [submitted, setSubmitted] = useState(false);
@@ -416,7 +421,17 @@ export default function ContactPage({ onHome, onPricing, lang = 'bn', onToggleLa
 
   return (
     <div className="absolute inset-0 overflow-y-auto nice-scroll">
-      <Nav onHome={onHome} onPricing={onPricing} lang={lang} onToggleLang={onToggleLang} />
+      <Nav
+        onHome={onHome}
+        onAbout={onAbout}
+        onPricing={onPricing}
+        onBlog={onBlog}
+        onTrack={onTrack}
+        onContact={onContact}
+        lang={lang}
+        onToggleLang={onToggleLang}
+        current="contact"
+      />
 
       {submitted ? (
         <ThanksScreen onHome={onHome} lang={lang} />

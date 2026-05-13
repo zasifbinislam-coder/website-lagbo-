@@ -129,8 +129,8 @@ export default function App() {
   }, [lang]);
 
   useEffect(() => {
-    try { localStorage.setItem('wl_theme', theme); } catch {}
-    document.documentElement.dataset.theme = theme;
+    // Theme toggle is disabled; pin dark to avoid stale light from old visits.
+    document.documentElement.dataset.theme = 'dark';
   }, [theme]);
 
   /* Compute the scale for the rotated desktop preview on mobile.
@@ -279,8 +279,10 @@ export default function App() {
     onStart: goToConfigurator,
     lang,
     onToggleLang: toggleLang,
-    theme,
-    onToggleTheme: toggleTheme,
+    /* theme toggle disabled — site is dark-mode only for now.
+       Light mode would require an audit of every component (most use
+       hardcoded `text-white` classes). Removing the toggle is cleaner
+       than shipping a broken light mode. */
   };
 
   if (page === 'home') {

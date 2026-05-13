@@ -29,37 +29,54 @@ const LangToggle = ({ lang, onToggle }) => (
   </button>
 );
 
-const Nav = ({ onHome, onBackToConfig, onContact, lang, onToggleLang }) => (
-  <nav
-    className="sticky top-0 z-30 backdrop-blur-2xl border-b"
-    style={{
-      background:
-        'linear-gradient(180deg, rgba(7,9,26,0.92) 0%, rgba(7,9,26,0.78) 100%)',
-      borderColor: 'rgba(255,255,255,0.08)',
-      boxShadow: '0 6px 28px -16px rgba(0,0,0,0.7)',
-    }}
-  >
-    <div className="max-w-6xl mx-auto px-5 md:px-8 h-20 md:h-28 flex items-center justify-between">
-      <button onClick={onHome} className="flex items-center gap-2.5">
-        <img loading="lazy" decoding="async"
-          src={logo}
-          alt="Website Lagbo Logo"
-          className="h-14 md:h-20 lg:h-24 w-auto object-contain"
-          style={{ filter: `drop-shadow(0 6px 16px ${ACCENT}aa) drop-shadow(0 0 6px rgba(236,72,153,0.45))` }}
-        />
-      </button>
-      <div className="flex items-center gap-3 md:gap-4 text-[13.5px] font-semibold text-white/70">
-        <button onClick={onHome} className="hidden md:inline hover:text-white">{lang === 'en' ? 'Home' : 'হোম'}</button>
-        <span className="hidden md:inline text-white px-2 py-1 rounded-md bg-white/10">{t(lang, 'navPricing')}</span>
-        <button onClick={onContact} className="hidden md:inline hover:text-white">{t(lang, 'navContact')}</button>
-        <LangToggle lang={lang} onToggle={onToggleLang} />
-        <button onClick={onBackToConfig} className="btn-primary text-[13px] font-bold px-4 py-2 rounded-lg">
-          {t(lang, 'pricingEditSelection')}
+const Nav = ({ onHome, onAbout, onBlog, onTrack, onContact, onBackToConfig, lang, onToggleLang, current = 'pricing' }) => {
+  const links = [
+    { key: 'about',   label: t(lang, 'navAbout'),   onClick: onAbout },
+    { key: 'pricing', label: t(lang, 'navPricing'), onClick: onHome /* stay; pricing is current */ },
+    { key: 'blog',    label: t(lang, 'navBlog'),    onClick: onBlog },
+    { key: 'track',   label: t(lang, 'navTrack'),   onClick: onTrack },
+    { key: 'contact', label: t(lang, 'navContact'), onClick: onContact },
+  ];
+  return (
+    <nav
+      className="sticky top-0 z-30 backdrop-blur-2xl border-b"
+      style={{
+        background:
+          'linear-gradient(180deg, rgba(7,9,26,0.92) 0%, rgba(7,9,26,0.78) 100%)',
+        borderColor: 'rgba(255,255,255,0.08)',
+        boxShadow: '0 6px 28px -16px rgba(0,0,0,0.7)',
+      }}
+    >
+      <div className="max-w-6xl mx-auto px-5 md:px-8 h-20 md:h-28 flex items-center justify-between">
+        <button onClick={onHome} className="flex items-center gap-2.5">
+          <img loading="lazy" decoding="async"
+            src={logo}
+            alt="Website Lagbo Logo"
+            className="h-14 md:h-20 lg:h-24 w-auto object-contain"
+            style={{ filter: `drop-shadow(0 6px 16px ${ACCENT}aa) drop-shadow(0 0 6px rgba(236,72,153,0.45))` }}
+          />
         </button>
+        <div className="flex items-center gap-3 md:gap-4 text-[13.5px] font-semibold text-white/70">
+          {links.map((link) => (
+            <button
+              key={link.key}
+              onClick={link.onClick}
+              className={`hidden md:inline transition-colors ${
+                current === link.key ? 'text-white px-2 py-1 rounded-md bg-white/10' : 'hover:text-white'
+              }`}
+            >
+              {link.label}
+            </button>
+          ))}
+          <LangToggle lang={lang} onToggle={onToggleLang} />
+          <button onClick={onBackToConfig} className="btn-primary text-[13px] font-bold px-4 py-2 rounded-lg">
+            {t(lang, 'pricingEditSelection')}
+          </button>
+        </div>
       </div>
-    </div>
-  </nav>
-);
+    </nav>
+  );
+};
 
 const Hero = ({ lang }) => (
   <section className="relative overflow-hidden">
@@ -497,6 +514,9 @@ export default function PricingPage({
   onHome,
   onBackToConfig,
   onContact,
+  onAbout,
+  onBlog,
+  onTrack,
   selectedType = 'landing',
   selectedFeatures = {},
   accent = ACCENT,
@@ -599,7 +619,17 @@ export default function PricingPage({
 
   return (
     <div className="absolute inset-0 overflow-y-auto nice-scroll">
-      <Nav onHome={onHome} onBackToConfig={onBackToConfig} onContact={onContact} lang={lang} onToggleLang={onToggleLang} />
+      <Nav
+        onHome={onHome}
+        onAbout={onAbout}
+        onBlog={onBlog}
+        onTrack={onTrack}
+        onContact={onContact}
+        onBackToConfig={onBackToConfig}
+        lang={lang}
+        onToggleLang={onToggleLang}
+        current="pricing"
+      />
 
       {submitted ? (
         <ThanksScreen
