@@ -3,6 +3,13 @@
    প্রতিটি সাইট টাইপের নিজস্ব ব্লক আছে। নিচে SITE_TYPES হলো master list।
    ========================================================================= */
 
+import testimonialRakib  from '../assets/testimonials/rakib.jpg';
+import testimonialShafiq from '../assets/testimonials/shafiq.jpg';
+import testimonialSabbir from '../assets/testimonials/sabbir.jpg';
+import teamPrantto from '../assets/team/prantto.jpg';
+import teamSakib   from '../assets/team/sakib.jpg';
+import teamArif    from '../assets/team/arif.jpg';
+
 export const COLOR_PALETTES = [
   { name: 'রয়্যাল', name_en: 'Royal', primary: '#6366f1', secondary: '#8b5cf6', tertiary: '#ec4899' },
   { name: 'ফরেস্ট', name_en: 'Forest', primary: '#10b981', secondary: '#14b8a6', tertiary: '#84cc16' },
@@ -21,33 +28,34 @@ export const COLORS = COLOR_PALETTES.map((p) => ({ name: p.name, value: p.primar
 
 export const TESTIMONIALS = [
   {
-    name: 'আয়েশা রহমান',
-    name_en: 'Ayesha Rahman',
+    name: 'রাকিব হাসান',
+    name_en: 'Rakib Hasan',
     city: 'ঢাকা',
     city_en: 'Dhaka',
-    text: 'ফেসবুক থেকে অর্ডার করেছিলাম, পরের দিনই হাতে পেলাম। কোয়ালিটি দামের তুলনায় অনেক ভালো!',
-    text_en: 'Ordered from Facebook and got it the next day. Quality is way better than the price!',
-    avatar: 'https://i.pravatar.cc/100?img=47',
+    text: '৪৮ ঘণ্টার মধ্যেই সাইট ডেলিভারি পেয়েছি। ডিজাইন, স্পিড — সব কিছু এক কথায় চমৎকার। দামটাও বেশ সাশ্রয়ী।',
+    text_en: 'Got the site delivered in 48 hours. Design, speed — all excellent. The price is genuinely affordable too.',
+    avatar: testimonialRakib,
   },
   {
-    name: 'তানভীর হাসান',
-    name_en: 'Tanvir Hasan',
+    name: 'শফিকুল ইসলাম',
+    name_en: 'Shafiqul Islam',
     city: 'চট্টগ্রাম',
     city_en: 'Chattogram',
-    text: 'ক্যাশ অন ডেলিভারি সিস্টেমে কোনো ঝামেলা নাই। ছবির মতই হুবহু পেয়েছি।',
-    text_en: 'Cash on delivery was painless. Got exactly what was shown in the photos.',
-    avatar: 'https://i.pravatar.cc/100?img=12',
+    text: 'বাংলায় পুরো প্রসেস হয়েছে — কোনো টেকনিক্যাল ঝামেলা ছাড়াই অনলাইনে এসেছি। অর্ডার বাড়তে শুরু করেছে।',
+    text_en: 'The whole process happened in Bangla — no technical hassle, my business is online now and orders are picking up.',
+    avatar: testimonialShafiq,
   },
   {
-    name: 'নুসরাত আহমেদ',
-    name_en: 'Nusrat Ahmed',
+    name: 'সাব্বির আহমেদ',
+    name_en: 'Sabbir Ahmed',
     city: 'সিলেট',
     city_en: 'Sylhet',
-    text: 'অর্ডার করা এত সহজ! আবার কিনব ইনশাআল্লাহ।',
-    text_en: 'Ordering was so easy! Will buy again, inshallah.',
-    avatar: 'https://i.pravatar.cc/100?img=32',
+    text: 'রিকোয়েস্ট দেওয়ার সাথে সাথেই কল পেয়েছি। সাপোর্ট টিম আন্তরিক, কাজ পাকা। আবারো কাজ করাব ইনশাআল্লাহ।',
+    text_en: 'Got a call right after my request. Support team is warm and the work is solid. Will work with them again, inshallah.',
+    avatar: testimonialSabbir,
   },
 ];
+
 
 /* ============== STORE (multi-product shop) ============== */
 
@@ -1105,30 +1113,30 @@ export const FIRST_ORDER_DISCOUNT_BDT = 500;
 export const ABOUT_TEAM = [
   {
     name: 'প্রান্ত আহমেদ',
-    name_en: 'Pranta Ahmed',
+    name_en: 'Prantto Ahmed',
     role: 'প্রতিষ্ঠাতা ও ডিজাইনার',
     role_en: 'Founder & Designer',
     bio: 'বাংলাদেশের ছোট ব্যবসাকে অনলাইনে আনার মিশন।',
     bio_en: 'On a mission to bring Bangladesh’s small businesses online.',
-    avatar: 'https://i.pravatar.cc/300?img=15',
+    avatar: teamPrantto,
   },
   {
     name: 'সাকিব রহমান',
     name_en: 'Sakib Rahman',
     role: 'লিড ডেভেলপার',
     role_en: 'Lead Developer',
-    bio: '৮ বছরের অভিজ্ঞতা ওয়েব এবং মোবাইল অ্যাপে।',
+    bio: '৮ বছরের অভিজ্ঞতা ওয়েব ও মোবাইল অ্যাপে।',
     bio_en: '8 years of experience in web and mobile apps.',
-    avatar: 'https://i.pravatar.cc/300?img=12',
+    avatar: teamSakib,
   },
   {
-    name: 'নুসরাত সুলতানা',
-    name_en: 'Nusrat Sultana',
+    name: 'আরিফুল হক',
+    name_en: 'Ariful Haque',
     role: 'কাস্টমার সাকসেস',
     role_en: 'Customer Success',
     bio: 'প্রতিটি ক্লায়েন্টকে পরিবারের মতো দেখি।',
-    bio_en: 'Every client is family to us.',
-    avatar: 'https://i.pravatar.cc/300?img=44',
+    bio_en: 'We treat every client like family.',
+    avatar: teamArif,
   },
 ];
 
