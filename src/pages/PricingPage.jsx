@@ -479,7 +479,7 @@ const FAQSection = ({ lang }) => (
   </section>
 );
 
-const ThanksScreen = ({ refId, total, onHome, onAnother, lang }) => (
+const ThanksScreen = ({ refId, total, onHome, onAnother, onPay, lang }) => (
   <div className="max-w-3xl mx-auto px-5 md:px-8 py-12 md:py-20">
     <div className="rounded-3xl p-8 md:p-12 text-center border border-emerald-500/30" style={{ background: 'linear-gradient(135deg, rgba(16,185,129,0.15), rgba(16,185,129,0.02))' }}>
       <div className="text-5xl md:text-6xl">🎉</div>
@@ -497,11 +497,25 @@ const ThanksScreen = ({ refId, total, onHome, onAnother, lang }) => (
           {t(lang, 'pricingFinalTotal')}: <span className="font-mono font-bold">{formatBDT(total)}</span>
         </span>
       </div>
+
+      {/* Prominent Pay-Now CTA */}
+      <div className="mt-7 pt-6 border-t border-white/10">
+        <button
+          onClick={() => onPay(refId)}
+          className="btn-primary inline-flex items-center justify-center w-full sm:w-auto text-[14.5px] font-extrabold px-8 py-3.5 rounded-xl"
+        >
+          {t(lang, 'pricingThanksPayNow')}
+        </button>
+        <div className="text-[12px] text-white/55 mt-2 max-w-md mx-auto">
+          {t(lang, 'pricingThanksPayHint')}
+        </div>
+      </div>
+
       <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-3">
-        <button onClick={onAnother} className="btn-primary text-[13px] font-bold px-5 py-2.5 rounded-lg">
+        <button onClick={onAnother} className="text-[12.5px] font-bold px-5 py-2.5 rounded-lg border border-white/15 text-white/75 hover:text-white hover:bg-white/5">
           {t(lang, 'pricingThanksAnother')}
         </button>
-        <button onClick={onHome} className="text-[13px] font-bold px-5 py-2.5 rounded-lg border border-white/15 text-white/85 hover:bg-white/5">
+        <button onClick={onHome} className="text-[12.5px] font-bold px-5 py-2.5 rounded-lg border border-white/15 text-white/75 hover:text-white hover:bg-white/5">
           {t(lang, 'pricingThanksHome')}
         </button>
       </div>
@@ -636,6 +650,10 @@ export default function PricingPage({
           total={submitted.total}
           onHome={onHome}
           onAnother={reset}
+          onPay={(ref) => {
+            window.history.pushState({}, '', `/payment/${encodeURIComponent(ref)}`);
+            window.dispatchEvent(new PopStateEvent('popstate'));
+          }}
           lang={lang}
         />
       ) : (

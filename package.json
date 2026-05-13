@@ -3,7 +3,7 @@
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Website Configurator and Live Preview Platform for COD micro e-commerce",
+  "description": "Website Configurator and Live Preview Platform for Bangladesh micro e-commerce",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
