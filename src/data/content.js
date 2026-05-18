@@ -2063,7 +2063,7 @@ export const STRINGS = {
     comparisonRow5: 'বাংলায় কাস্টমার সাপোর্ট',
     comparisonRow6: 'ফ্রি ১ বছর সাপোর্ট',
     comparisonRow7: 'সোর্স কোড আপনার',
-    comparisonRow8: 'কোনো মাসিক ফি নেই',
+    comparisonRow8: 'কোনো প্ল্যাটফর্ম লক-ইন নেই',
     /* ---- About page ---- */
     navAbout: 'আমাদের সম্পর্কে',
     aboutHeroBadge: '👋 আমাদের গল্প',
@@ -2822,7 +2822,7 @@ export const STRINGS = {
     comparisonRow5: 'Customer support in Bangla',
     comparisonRow6: 'Free 1-year support',
     comparisonRow7: 'You own the source code',
-    comparisonRow8: 'No monthly fees',
+    comparisonRow8: 'No platform lock-in',
     /* ---- About page ---- */
     navAbout: 'About',
     aboutHeroBadge: '👋 Our story',
