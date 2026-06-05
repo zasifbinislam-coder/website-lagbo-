@@ -1,11 +1,11 @@
-﻿import { LANDING_PRODUCT } from '../../../data/content.js';
+import { LANDING_PRODUCT } from '../../../data/content.js';
 import { formatBDT } from '../../../utils.js';
 import { useT } from '../../../lang/LangContext.jsx';
 
 const StickyCTA = ({ accent }) => {
   const t = useT();
   return (
-    <div className="absolute left-0 right-0 bottom-0 z-30 px-3 pb-2 pt-3 pointer-events-none">
+    <div className="absolute left-0 right-0 bottom-16 z-30 px-3 pb-2 pt-3 pointer-events-none">
       <div
         className="pointer-events-auto rounded-2xl shadow-2xl border border-white/20 backdrop-blur flex items-center gap-2 p-2"
         style={{
