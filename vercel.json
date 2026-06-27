@@ -33,6 +33,6 @@
     }
   ],
   "crons": [
-    { "path": "/api/health", "schedule": "0 0 * * *" }
+    { "path": "/api/keepalive", "schedule": "0 0 * * *" }
   ]
 }
