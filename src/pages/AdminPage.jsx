@@ -11,6 +11,7 @@
 import { useEffect, useMemo, useState } from 'react';
 import { formatBDT } from '../utils.js';
 import { MFS_INFO } from '../data/content.js';
+import { buildOrderPrompt } from '../promptBuilder.js';
 
 const TOKEN_KEY = 'wl_admin_token';
 
@@ -235,10 +236,65 @@ function LeadRow({ lead, token, onStatusChanged }) {
                 <pre className="mt-2 text-[11.5px] text-white/65 bg-black/30 p-3 rounded-md overflow-x-auto">{JSON.stringify(lead.pricing, null, 2)}</pre>
               </details>
             )}
+            <PromptBlock lead={lead} />
           </td>
         </tr>
       )}
     </>
+  );
+}
+
+/* Generates a plain-language "build this website" prompt from the order's
+   selected features, ready to paste into Claude Code. Hidden until asked,
+   shown in a read-only textarea with a one-click copy button. */
+function PromptBlock({ lead }) {
+  const [show, setShow] = useState(false);
+  const [copied, setCopied] = useState(false);
+  const prompt = useMemo(() => buildOrderPrompt(lead), [lead]);
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(prompt);
+    } catch {
+      const ta = document.getElementById(`prompt-${lead.ref_id}`);
+      if (ta) { ta.focus(); ta.select(); document.execCommand('copy'); }
+    }
+    setCopied(true);
+    setTimeout(() => setCopied(false), 1800);
+  };
+
+  return (
+    <div className="mt-4 pt-3 border-t border-white/10">
+      <div className="flex items-center justify-between gap-3">
+        <div className="text-[11px] font-bold uppercase tracking-wider text-white/40">Claude Code build prompt</div>
+        <button
+          onClick={() => setShow((s) => !s)}
+          className="text-[11.5px] font-bold rounded-md border border-indigo-400/40 bg-indigo-500/10 px-3 py-1.5 text-indigo-200 hover:bg-indigo-500/20"
+        >
+          {show ? 'Hide prompt' : '✦ Generate prompt'}
+        </button>
+      </div>
+      {show && (
+        <div className="mt-3">
+          <textarea
+            id={`prompt-${lead.ref_id}`}
+            readOnly
+            value={prompt}
+            onFocus={(e) => e.target.select()}
+            className="w-full h-72 text-[12px] leading-relaxed font-mono text-white/85 bg-black/40 border border-white/10 rounded-lg p-3 outline-none focus:border-indigo-400 resize-y"
+          />
+          <div className="mt-2 flex items-center gap-3">
+            <button
+              onClick={copy}
+              className="text-[12px] font-extrabold rounded-md bg-indigo-500 hover:bg-indigo-400 px-4 py-2 text-white"
+            >
+              {copied ? 'Copied ✓' : 'Copy prompt'}
+            </button>
+            <span className="text-[11px] text-white/40">Paste this into Claude Code to build the customer’s site.</span>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
 
